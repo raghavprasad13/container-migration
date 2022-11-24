@@ -3,7 +3,7 @@ from receiver import Receiver
 from collections import defaultdict
 from multiprocessing import Process, Value
 from threading import Lock
-from server_data import InstanceData
+from system_data.instance_data import InstanceData
 
 
 NODES = {}
@@ -69,7 +69,7 @@ recv_sos = Value("i", 1)
 
 receiver_process = Process(target=node.recv, args=(recv_sos))
 receiver_process.start()
-status_update_process = Process(target=node.update_my_status)
+status_update_process = Process(target=node.update_my_status, args=("""TODO"""))
 status_update_process.start()
 
 while True:
@@ -82,7 +82,9 @@ while True:
         sender = Sender(node_ip, node_port)
         sender.send(sos=True)
 
+    node.node_recv_progress_lock.acquire()
     node.node_recv_progress = {node_ip: False for node_ip in NODES}
+    node.node_recv_progress_lock.release()
 
     while recv_sos.value == 0:
         pass
