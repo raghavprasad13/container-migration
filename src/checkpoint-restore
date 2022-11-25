@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo podman contiainer restore --import $1 && return 0
+
+return 1
