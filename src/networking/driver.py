@@ -32,7 +32,12 @@ class Node:
         while not monitor.instance_data:
             pass
         self.my_status_lock.acquire()
-        self.my_status = monitor.instance_data
+        # self.my_status = monitor.instance_data
+        # self.my_status = InstanceData(
+        # ("", 8080), cpu_utilization=80, memory_utilization=96)
+        # for test
+        self.my_status = InstanceData(
+            ("", 8080), cpu_utilization=95, memory_utilization=80)
         self.check_stability()
         self.my_status_lock.release()
 
