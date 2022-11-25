@@ -1,6 +1,6 @@
 from socket import socket
 from pickle import loads
-from server_data import InstanceData
+from system_data.instance_data import InstanceData
 
 
 class Receiver:

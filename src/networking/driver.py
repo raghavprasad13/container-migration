@@ -113,23 +113,23 @@ receiver_process.start()
 status_update_process = Process(target=node.update_my_status)
 status_update_process.start()
 
-while True:
-    while node.instance_stable:
-        pass
+# while True:
+#     while node.instance_stable:
+#         pass
 
-    recv_sos.value = 0
+#     recv_sos.value = 0
 
-    for node_ip, node_port in NODES.items():
-        sender = Sender(node_ip, node_port)
-        sender.send(sos=True)
+#     for node_ip, node_port in NODES.items():
+#         sender = Sender(node_ip, node_port)
+#         sender.send(sos=True)
 
-    while recv_sos.value == 0:
-        pass
+#     while recv_sos.value == 0:
+#         pass
 
-    candidate_target = node.get_candidate_target()
-    checkpoint_name = node.migrate(
-        candidate_target,
-    )  # TODO
-    node.instance_stable = True
-    checkpoint_name_sender = Sender(candidate_target, NODES[candidate_target])
-    checkpoint_name_sender.send(data=InstanceData(misc_message=checkpoint_name))
+#     candidate_target = node.get_candidate_target()
+#     checkpoint_name = node.migrate(
+#         candidate_target,
+#     )  # TODO
+#     node.instance_stable = True
+#     checkpoint_name_sender = Sender(candidate_target, NODES[candidate_target])
+#     checkpoint_name_sender.send(data=InstanceData(misc_message=checkpoint_name))

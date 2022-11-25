@@ -1,5 +1,5 @@
 from socket import socket
-from server_data import InstanceData
+from system_data.instance_data import InstanceData
 from pickle import dumps
 from typing import Optional
 
@@ -13,6 +13,6 @@ class Sender:
     def send(self, sos: bool = False, data: Optional[InstanceData] = None) -> None:
         self.sock.connect((self.receiver_ip, self.receiver_port))
         if sos:
-            self.sock.send(b"sos")
+            self.sock.send(InstanceData(sos=True))
         elif data:
             self.sock.send(dumps(data))
