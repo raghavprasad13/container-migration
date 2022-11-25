@@ -11,6 +11,7 @@ class InstanceData:
         cpu: Optional[float] = None,
         memory: Optional[float] = None,
         sos: bool = False,
+        misc_message: Optional[str] = None,
     ) -> None:
         self.sender_ip, self.sender_port = sender_ip_port
         self.cpu_utilization = cpu_utilization
@@ -19,6 +20,7 @@ class InstanceData:
         self.cpu = cpu
         self.memory = memory
         self.sos = sos
+        self.misc_message = misc_message
 
     def get_cpu_utilization(self) -> float:
         return self.cpu_utilization

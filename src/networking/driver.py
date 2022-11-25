@@ -3,7 +3,12 @@ from receiver import Receiver
 from collections import defaultdict
 from multiprocessing import Process, Value
 from threading import Lock
+from system_data.monitor import Monitor
 from system_data.instance_data import InstanceData
+import configparser
+import subprocess
+import shlex
+from typing import Optional
 
 
 NODES = {}
@@ -21,9 +26,22 @@ class Node:
         self.node_recv_progress = {node_ip: False for node_ip in NODES}
         self.node_recv_progress_lock = Lock()
 
-    def update_my_status(self, status: InstanceData):
+    def update_my_status(self):
+        monitor = Monitor()
+        monitor.monitor_proc.start()
+        while not monitor.instance_data:
+            pass
         self.my_status_lock.acquire()
-        self.my_status = status
+        self.my_status = monitor.instance_data
+        self.check_stability()
+        self.my_status_lock.release()
+
+    def check_stability(self):
+        self.my_status_lock.acquire()
+        if self.my_status.cpu_utilization > 90:
+            self.instance_stable = False
+        elif self.my_status.memory_utilization > 90:
+            self.instance_stable = False
         self.my_status_lock.release()
 
     def recv(self, sos: Value):
@@ -57,19 +75,42 @@ class Node:
                 self.node_recv_progress_lock.release()
 
     def get_candidate_target(self) -> str:
+        # TODO
         pass
 
-    def migrate(self, node_ip: str) -> bool:
-        pass
+    def migrate(
+        self,
+        checkpoint_name: str,
+        container_name: str,
+        pem_dir: str,
+        checkpoint_dir: str,
+        node_ip: str,
+    ) -> tuple[Optional[str], bool]:
+        ret = subprocess.call(
+            shlex.split(
+                "../migrate "
+                + " ".join(
+                    [checkpoint_name, container_name, pem_dir, checkpoint_dir, node_ip]
+                )
+            )
+        )
+
+        if ret == 1:
+            print("Migration unsuccessful")
+            return (None, False)
+
+        return (ret, True)
 
 
-node = Node("", 8080)
+config = configparser.ConfigParser()
+config.read("../config.ini")
+node = Node(config["DEFAULT"]["IP"], config["DEFAULT"]["PORT"])
 
 recv_sos = Value("i", 1)
 
 receiver_process = Process(target=node.recv, args=(recv_sos))
 receiver_process.start()
-status_update_process = Process(target=node.update_my_status, args=("""TODO"""))
+status_update_process = Process(target=node.update_my_status)
 status_update_process.start()
 
 while True:
@@ -82,13 +123,13 @@ while True:
         sender = Sender(node_ip, node_port)
         sender.send(sos=True)
 
-    node.node_recv_progress_lock.acquire()
-    node.node_recv_progress = {node_ip: False for node_ip in NODES}
-    node.node_recv_progress_lock.release()
-
     while recv_sos.value == 0:
         pass
 
     candidate_target = node.get_candidate_target()
-    node.migrate(candidate_target)
+    checkpoint_name = node.migrate(
+        candidate_target,
+    )  # TODO
     node.instance_stable = True
+    checkpoint_name_sender = Sender(candidate_target, NODES[candidate_target])
+    checkpoint_name_sender.send(data=InstanceData(misc_message=checkpoint_name))
