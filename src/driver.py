@@ -1,5 +1,5 @@
-from sender import Sender
-from receiver import Receiver
+from networking.sender import Sender
+from networking.receiver import Receiver
 from collections import defaultdict
 from multiprocessing import Process, Value
 from threading import Lock
@@ -9,6 +9,10 @@ import configparser
 import subprocess
 import shlex
 from typing import Optional
+import sys
+from typing import Tuple
+
+# sys.path.append("../system_data")
 
 
 NODES = {}
@@ -44,8 +48,10 @@ class Node:
     def check_stability(self):
         self.my_status_lock.acquire()
         if self.my_status.cpu_utilization > 90:
+            print("Unstable: CPU utilization")
             self.instance_stable = False
         elif self.my_status.memory_utilization > 90:
+            print("Unstable: Memory utilization")
             self.instance_stable = False
         self.my_status_lock.release()
 
@@ -102,7 +108,7 @@ class Node:
         pem_dir: str,
         checkpoint_dir: str,
         node_ip: str,
-    ) -> tuple[Optional[str], bool]:
+    ) -> Tuple[Optional[str], bool]:
         ret = subprocess.call(
             shlex.split(
                 "../migrate "
@@ -121,12 +127,12 @@ class Node:
 
 
 config = configparser.ConfigParser()
-config.read("../config.ini")
+config.read("config.ini")
 node = Node(config["DEFAULT"]["IP"], config["DEFAULT"]["PORT"])
 
 recv_sos = Value("i", 1)
 
-receiver_process = Process(target=node.recv, args=(recv_sos))
+receiver_process = Process(target=node.recv, args=(recv_sos,))
 receiver_process.start()
 status_update_process = Process(target=node.update_my_status)
 status_update_process.start()

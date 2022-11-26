@@ -2,7 +2,7 @@ import psutil
 from multiprocessing import Process
 import os
 import configparser
-from instance_data import InstanceData
+from system_data.instance_data import InstanceData
 from threading import Lock
 
 
@@ -14,7 +14,7 @@ class Monitor:
 
     def monitor_cpu_mem(self) -> InstanceData:
         config = configparser.ConfigParser()
-        config.read("../config.ini")
+        config.read("config.ini")
         my_ip = config["DEFAULT"]["IP"]
         my_port = config["DEFAULT"]["PORT"]
         cpu_percent = psutil.cpu_percent(5)
