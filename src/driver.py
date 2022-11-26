@@ -8,7 +8,7 @@ from utils.const_and_glob import *
 
 if __name__ == "__main__":
     config = ConfigParser()
-    config.read("config.ini")
+    config.read("./config.ini")
     node = Node(config["DEFAULT"]["IP"], config["DEFAULT"]["PORT"])
 
     for section in config.sections():
