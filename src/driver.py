@@ -57,8 +57,10 @@ class Node:
 
     def recv(self, sos: Value):
         while True:
+            print("In driver.py recv")
             receiver = Receiver()
             data = receiver.receive()
+            # print("In driver.py recv")
             if sos.value == 1 and data.sos:
                 sender = Sender(data.sender_ip, data.sender_port)
                 self.my_status_lock.acquire()

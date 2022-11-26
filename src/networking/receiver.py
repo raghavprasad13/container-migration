@@ -13,6 +13,7 @@ class Receiver:
         self.sock.listen()
 
     def receive(self) -> InstanceData:
+        print("In receiver.py receive")
         data = ""
         conn, addr = self.sock.accept()
         with conn:
