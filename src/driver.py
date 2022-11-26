@@ -5,7 +5,7 @@ from multiprocessing import Process, Value
 from threading import Lock
 from system_data.monitor import Monitor
 from system_data.instance_data import InstanceData
-import configparser
+from configparser import ConfigParser
 import subprocess
 import shlex
 from typing import Optional
@@ -167,8 +167,8 @@ class Node:
         return (ret, True)
 
 
-config = configparser.ConfigParser()
-config.read("../config.ini")
+config = ConfigParser()
+config.read("config.ini")
 node = Node(config["DEFAULT"]["IP"], config["DEFAULT"]["PORT"])
 
 for section in config.sections():
@@ -177,7 +177,7 @@ for section in config.sections():
 
 recv_sos = Value("i", 1)
 
-receiver_process = Process(target=node.recv, args=(recv_sos))
+receiver_process = Process(target=node.recv, args=(recv_sos,))
 receiver_process.start()
 status_update_process = Process(target=node.update_my_status)
 status_update_process.start()
