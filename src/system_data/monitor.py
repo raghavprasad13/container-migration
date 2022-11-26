@@ -10,7 +10,6 @@ class Monitor:
     def __init__(self) -> None:
         self.monitor_proc = Process(target=self.monitor_cpu_mem)
         self.instance_data = None
-        self.instance_data_lock = Lock()
 
     def monitor_cpu_mem(self) -> InstanceData:
         config = configparser.ConfigParser()
@@ -31,6 +30,4 @@ class Monitor:
             memory=total_memory,
         )
 
-        self.instance_data_lock.acquire()
         self.instance_data = instance_data
-        self.instance_data_lock.release()

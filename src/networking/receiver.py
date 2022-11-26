@@ -1,11 +1,11 @@
-from socket import socket
+from socket import socket, AF_INET, SOCK_STREAM
 from pickle import loads
 from system_data.instance_data import InstanceData
 
 
 class Receiver:
     def __init__(self) -> None:
-        self.sock = socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock = socket(AF_INET, SOCK_STREAM)
         self.ip = ""
         self.port = 8080
 

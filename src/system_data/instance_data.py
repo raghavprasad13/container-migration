@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 
 class InstanceData:
     def __init__(
         self,
-        sender_ip_port: tuple[str, int],
+        sender_ip_port: Tuple[str, int],
         cpu_utilization: Optional[float] = None,
         memory_utilization: Optional[float] = None,
         network_utilization: Optional[float] = None,

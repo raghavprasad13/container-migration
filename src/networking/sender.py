@@ -1,4 +1,4 @@
-from socket import socket
+from socket import socket, AF_INET, SOCK_STREAM
 from system_data.instance_data import InstanceData
 from pickle import dumps
 from typing import Optional
@@ -6,7 +6,7 @@ from typing import Optional
 
 class Sender:
     def __init__(self, receiver_ip: str, receiver_port: int) -> None:
-        self.sock = socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock = socket(AF_INET, SOCK_STREAM)
         self.receiver_ip = receiver_ip
         self.receiver_port = receiver_port
 
