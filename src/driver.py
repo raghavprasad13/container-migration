@@ -24,10 +24,10 @@ if __name__ == "__main__":
     while True:
         print("here")
         while node.cpu_stable and node.memory_stable:
-            print(node.cpu_stable, node.memory_stable)
-            print(node.my_status)
-            print()
-            # pass
+            # print(node.cpu_stable, node.memory_stable)
+            # print(node.my_status)
+            # print()
+            pass
 
         recv_sos.value = 0
 
@@ -46,5 +46,7 @@ if __name__ == "__main__":
             node.cpu_stable = True
         if not node.memory_stable:
             node.memory_stable = True
-        checkpoint_name_sender = Sender(candidate_target, NODES[candidate_target])
-        checkpoint_name_sender.send(data=InstanceData(misc_message=checkpoint_name))
+        checkpoint_name_sender = Sender(
+            candidate_target, NODES[candidate_target])
+        checkpoint_name_sender.send(
+            data=InstanceData(misc_message=checkpoint_name))

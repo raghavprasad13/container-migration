@@ -25,12 +25,13 @@ class Node:
             self.check_stability()
 
     def monitor(self) -> None:
+        print("Inside Monitor")
         cpu_percent = psutil.cpu_percent(5)
         cpu_max_freq = psutil.cpu_freq().max
         total_memory, used_memory, _ = map(
             int, os.popen("free -t -m").readlines()[-1].split()[1:]
         )
-
+        print("Creating instance_data")
         instance_data = InstanceData(
             sender_ip_port=(self.ip, self.port),
             cpu_utilization=cpu_percent,
@@ -38,16 +39,20 @@ class Node:
             cpu=cpu_max_freq,
             memory=total_memory,
         )
-
+        print("Initializing my_status")
         self.my_status = InstanceData(
             (self.ip, self.port), cpu_utilization=95, memory_utilization=50
         )
+        print("my_status updated")
+        # self.my_status = instance_data
 
     def check_stability(self):
         print("in check_stability")
         if self.my_status.cpu_utilization > 90:
+            print("CPU overutilized")
             self.cpu_stable = False
         elif self.my_status.memory_utilization > 90:
+            print("Memory overutlized")
             self.memory_stable = False
 
     def recv(self, sos: int):
@@ -144,7 +149,8 @@ class Node:
             shlex.split(
                 "../migrate "
                 + " ".join(
-                    [checkpoint_name, container_name, pem_dir, checkpoint_dir, node_ip]
+                    [checkpoint_name, container_name,
+                        pem_dir, checkpoint_dir, node_ip]
                 )
             )
         )
