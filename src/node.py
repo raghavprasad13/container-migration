@@ -1,11 +1,12 @@
 from utils.const_and_glob import *
-from system_data.monitor import Monitor
+from system_data.instance_data import InstanceData
 from networking.receiver import Receiver
 from networking.sender import Sender
 from typing import Optional, Tuple
+import psutil
+import os
 import subprocess
 import shlex
-from multiprocessing.managers import BaseManager
 
 
 class Node:
@@ -20,14 +21,30 @@ class Node:
 
     def update_my_status(self):
         while True:
-            monitor = Monitor()
-            monitor.monitor_proc.start()
-            while not monitor.instance_data:
-                pass
-            self.my_status = monitor.instance_data
+            self.monitor()
             self.check_stability()
 
+    def monitor(self) -> None:
+        cpu_percent = psutil.cpu_percent(5)
+        cpu_max_freq = psutil.cpu_freq().max
+        total_memory, used_memory, _ = map(
+            int, os.popen("free -t -m").readlines()[-1].split()[1:]
+        )
+
+        instance_data = InstanceData(
+            sender_ip_port=(self.ip, self.port),
+            cpu_utilization=cpu_percent,
+            memory_utilization=(used_memory / total_memory),
+            cpu=cpu_max_freq,
+            memory=total_memory,
+        )
+
+        self.my_status = InstanceData(
+            (self.ip, self.port), cpu_utilization=95, memory_utilization=50
+        )
+
     def check_stability(self):
+        print("in check_stability")
         if self.my_status.cpu_utilization > 90:
             self.cpu_stable = False
         elif self.my_status.memory_utilization > 90:

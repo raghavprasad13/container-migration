@@ -22,8 +22,12 @@ if __name__ == "__main__":
     status_update_process.start()
 
     while True:
+        print("here")
         while node.cpu_stable and node.memory_stable:
-            pass
+            print(node.cpu_stable, node.memory_stable)
+            print(node.my_status)
+            print()
+            # pass
 
         recv_sos.value = 0
 
