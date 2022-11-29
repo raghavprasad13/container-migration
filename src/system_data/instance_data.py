@@ -22,6 +22,30 @@ class InstanceData:
         self.sos = sos
         self.misc_message = misc_message
 
+    def __repr__(self) -> str:
+        d = {
+            "sender_ip": self.sender_ip,
+            "sender_port": self.sender_port,
+            "cpu_utilization": self.cpu_utilization,
+            "memory_utilization": self.memory_utilization,
+            "network_utilization": self.network_utilization,
+            "cpu": self.cpu,
+            "memory": self.memory,
+            "sos": self.sos,
+            "misc_message": self.misc_message,
+        }
+
+        repr = ""
+        for key, val in d.items():
+            if not val:
+                continue
+            if type(val) == int:
+                val = str(val)
+            repr += key + ": " + val + ", "
+        repr = repr.strip()
+
+        return repr
+
     def get_cpu_utilization(self) -> float:
         return self.cpu_utilization
 

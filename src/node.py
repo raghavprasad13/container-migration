@@ -1,12 +1,56 @@
 from utils.const_and_glob import *
 from system_data.instance_data import InstanceData
+from multiprocessing.managers import BaseManager, NamespaceProxy
 from networking.receiver import Receiver
 from networking.sender import Sender
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
+from multiprocessing import Value
 import psutil
 import os
 import subprocess
 import shlex
+
+
+class NodeManager(BaseManager):
+    pass
+
+
+class NodeProxy(NamespaceProxy):
+    _exposed_ = (
+        "__getattribute__",
+        "__setattr__",
+        "__delattr__",
+        "update_my_status",
+        "recv",
+        "get_target",
+        "migrate",
+    )
+
+    def update_my_status(self):
+        callmethod = object.__getattribute__(self, "_callmethod")
+        return callmethod("update_my_status")
+
+    def recv(self, sos: Value):
+        callmethod = object.__getattribute__(self, "_callmethod")
+        return callmethod("recv", [sos])
+
+    def get_target(self):
+        callmethod = object.__getattribute__(self, "_callmethod")
+        return callmethod("get_target")
+
+    def migrate(
+        self,
+        checkpoint_name: str,
+        container_name: str,
+        pem_dir: str,
+        checkpoint_dir: str,
+        node_ip: str,
+    ):
+        callmethod = object.__getattribute__(self, "_callmethod")
+        return callmethod(
+            "migrate",
+            [checkpoint_name, container_name, pem_dir, checkpoint_dir, node_ip],
+        )
 
 
 class Node:
@@ -21,27 +65,31 @@ class Node:
 
     def update_my_status(self):
         while True:
+            print("in update_my_status")
             self.monitor()
             self.check_stability()
 
     def monitor(self) -> None:
-        cpu_percent = psutil.cpu_percent(5)
-        cpu_max_freq = psutil.cpu_freq().max
-        total_memory, used_memory, _ = map(
-            int, os.popen("free -t -m").readlines()[-1].split()[1:]
-        )
+        print("in monitor")
+        print()
+        # cpu_percent = psutil.cpu_percent(5)
+        # cpu_max_freq = psutil.cpu_freq().max
+        # total_memory, used_memory, _ = map(
+        #     int, os.popen("free -t -m").readlines()[-1].split()[1:]
+        # )
 
-        instance_data = InstanceData(
-            sender_ip_port=(self.ip, self.port),
-            cpu_utilization=cpu_percent,
-            memory_utilization=(used_memory / total_memory),
-            cpu=cpu_max_freq,
-            memory=total_memory,
-        )
+        # instance_data = InstanceData(
+        #     sender_ip_port=(self.ip, self.port),
+        #     cpu_utilization=cpu_percent,
+        #     memory_utilization=(used_memory / total_memory),
+        #     cpu=cpu_max_freq,
+        #     memory=total_memory,
+        # )
 
         self.my_status = InstanceData(
             (self.ip, self.port), cpu_utilization=95, memory_utilization=50
         )
+        print(f"monitor my_status: {self.my_status}")
 
     def check_stability(self):
         print("in check_stability")
@@ -50,7 +98,7 @@ class Node:
         elif self.my_status.memory_utilization > 90:
             self.memory_stable = False
 
-    def recv(self, sos: int):
+    def recv(self, sos: Value):
         while True:
             receiver = Receiver()
             data = receiver.receive()
