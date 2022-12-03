@@ -9,6 +9,7 @@ import psutil
 import os
 import subprocess
 import shlex
+from configparser import ConfigParser
 
 
 class NodeManager(BaseManager):
@@ -55,6 +56,8 @@ class NodeProxy(NamespaceProxy):
 
 class Node:
     def __init__(self, ip: str, port: int) -> None:
+        config = ConfigParser()
+        config.read("config.ini")
         self.ip = ip
         self.port = port
         self.cpu_stable = True
@@ -62,6 +65,9 @@ class Node:
         self.all_node_status = {node_ip: None for node_ip in NODES}
         self.my_status = None
         self.node_recv_progress = {node_ip: False for node_ip in NODES}
+        self.container_name = config["DEFAULT"]["CONTAINER"]
+        self.checkpoint_dir = config["DEFAULT"]["CHECKPOINT_DIR"]
+        self.pem_dir = config["DEFAULT"]["PEM_DIR"]
 
     def update_my_status(self):
         while True:
@@ -120,6 +126,9 @@ class Node:
                     continue
                 sos.value = 1
                 self.node_recv_progress = {node_ip: False for node_ip in NODES}
+
+            if data.misc_message != None:
+                pass
 
     def get_target(self) -> str:
         threshold_factor = 1
@@ -180,19 +189,19 @@ class Node:
 
                 return min_viable_ip
 
-    def migrate(
-        self,
-        checkpoint_name: str,
-        container_name: str,
-        pem_dir: str,
-        checkpoint_dir: str,
-        node_ip: str,
-    ) -> Tuple[Optional[str], bool]:
+    def migrate(self) -> Tuple[Optional[str], bool]:
+        checkpoint_name = "checkpoint_" + self.container_name
         ret = subprocess.call(
             shlex.split(
                 "../migrate "
                 + " ".join(
-                    [checkpoint_name, container_name, pem_dir, checkpoint_dir, node_ip]
+                    [
+                        checkpoint_name,
+                        self.container_name,
+                        self.pem_dir,
+                        self.checkpoint_dir,
+                        self.ip,
+                    ]
                 )
             )
         )

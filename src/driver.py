@@ -40,7 +40,6 @@ if __name__ == "__main__":
         receiver_process.start()
 
         while True:
-            print("here")
             while node.cpu_stable and node.memory_stable:
                 # print(node.cpu_stable, node.memory_stable)
                 print(f"node.my_status: {node.my_status}")
@@ -57,13 +56,10 @@ if __name__ == "__main__":
                 pass
 
             candidate_target = node.get_target()
-            checkpoint_name = node.migrate(
-                candidate_target,
-            )  # TODO
+            checkpoint_name = node.migrate()
             if not node.cpu_stable:
                 node.cpu_stable = True
             if not node.memory_stable:
                 node.memory_stable = True
             checkpoint_name_sender = Sender(candidate_target, NODES[candidate_target])
             checkpoint_name_sender.send(data=InstanceData(misc_message=checkpoint_name))
-    print("outside")
