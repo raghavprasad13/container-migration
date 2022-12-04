@@ -184,8 +184,9 @@ class Node:
                 min_viable = float("inf")
                 min_viable_ip = None
                 for node_ip, (_, total_memory) in all_nodes_memory_stats:
-                    min_viable = min(min_viable, total_memory)
-                    min_viable_ip = node_ip
+                    if total_memory < min_viable:
+                        min_viable = total_memory
+                        min_viable_ip = node_ip
 
                 return min_viable_ip
 

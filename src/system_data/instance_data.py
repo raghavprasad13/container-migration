@@ -41,7 +41,7 @@ class InstanceData:
                 continue
             if type(val) == int:
                 val = str(val)
-            repr += key + ": " + val + ", "
+            repr += key + ": " + str(val) + ", "
         repr = repr.strip()
 
         return repr
