@@ -10,8 +10,8 @@ def update_status(node: Node) -> None:
     node.update_my_status()
 
 
-def recv(sos: Value, node: Node) -> None:
-    node.recv(sos)
+def recv(node: Node) -> None:
+    node.recv()
 
 
 if __name__ == "__main__":
@@ -24,18 +24,13 @@ if __name__ == "__main__":
     NodeManager.register("Node", Node, NodeProxy)
     with NodeManager() as manager:
         node = manager.Node(config["DEFAULT"]["IP"], int(config["DEFAULT"]["PORT"]))
-        # print(type(node))
-        recv_sos = Value("i", 1)
 
         status_update_process = Process(target=update_status, args=(node,))
         status_update_process.start()
         # status_update_process.join()
         receiver_process = Process(
             target=recv,
-            args=(
-                recv_sos,
-                node,
-            ),
+            args=(node,),
         )
         receiver_process.start()
 

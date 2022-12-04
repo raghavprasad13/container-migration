@@ -3,8 +3,7 @@ from system_data.instance_data import InstanceData
 from multiprocessing.managers import BaseManager, NamespaceProxy
 from networking.receiver import Receiver
 from networking.sender import Sender
-from typing import Optional, Tuple, Any
-from multiprocessing import Value
+from typing import Optional, Tuple
 import psutil
 import os
 import subprocess
@@ -31,9 +30,9 @@ class NodeProxy(NamespaceProxy):
         callmethod = object.__getattribute__(self, "_callmethod")
         return callmethod("update_my_status")
 
-    def recv(self, sos: Value):
+    def recv(self):
         callmethod = object.__getattribute__(self, "_callmethod")
-        return callmethod("recv", [sos])
+        return callmethod("recv")
 
     def get_target(self):
         callmethod = object.__getattribute__(self, "_callmethod")
@@ -104,11 +103,11 @@ class Node:
         elif self.my_status.memory_utilization > 90:
             self.memory_stable = False
 
-    def recv(self, sos: Value):
+    def recv(self):
         while True:
             receiver = Receiver()
             data = receiver.receive()
-            if sos.value == 1 and data.sos:
+            if recv_sos.value == 1 and data.sos:
                 sender = Sender(data.sender_ip, data.sender_port)
                 my_status_copy = self.my_status.copy()
                 sender.send(data=my_status_copy)
@@ -124,7 +123,7 @@ class Node:
                 self.node_recv_progress[data.sender_ip] = True
                 if False in self.node_recv_progress:
                     continue
-                sos.value = 1
+                recv_sos.value = 1
                 self.node_recv_progress = {node_ip: False for node_ip in NODES}
 
             if data.misc_message != None:
