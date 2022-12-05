@@ -1,8 +1,7 @@
 from networking.sender import Sender
-from multiprocessing import Process, Value
+from multiprocessing import Process
 from node import Node, NodeManager, NodeProxy
 from system_data.instance_data import InstanceData
-from configparser import ConfigParser
 from utils.const_and_glob import *
 
 
@@ -15,15 +14,9 @@ def recv(node: Node) -> None:
 
 
 if __name__ == "__main__":
-    config = ConfigParser()
-    config.read("config.ini")
-    # node = Node(config["DEFAULT"]["IP"], int(config["DEFAULT"]["PORT"]))
-    for section in config.sections():
-        NODES[config[section]["IP"]] = int(config[section]["PORT"])
-
     NodeManager.register("Node", Node, NodeProxy)
     with NodeManager() as manager:
-        node = manager.Node(config["DEFAULT"]["IP"], int(config["DEFAULT"]["PORT"]))
+        node = manager.Node(MY_IP, MY_PORT)
 
         receiver_process = Process(
             target=recv,
@@ -57,4 +50,6 @@ if __name__ == "__main__":
             if not node.memory_stable:
                 node.memory_stable = True
             checkpoint_name_sender = Sender(candidate_target, NODES[candidate_target])
-            checkpoint_name_sender.send(data=InstanceData(misc_message=checkpoint_name))
+            checkpoint_name_sender.send(
+                data=InstanceData((MY_IP, MY_PORT), misc_message=checkpoint_name)
+            )
