@@ -16,5 +16,6 @@ class Sender:
         if sos:
             print("sending sos now")
             self.sock.send(dumps(InstanceData((MY_IP, MY_PORT), sos=True)))
+            print("done sending sos")
         elif data:
             self.sock.send(dumps(data))
