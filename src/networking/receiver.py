@@ -25,5 +25,6 @@ class Receiver:
                 if not chunk:
                     break
                 data += chunk
+            print("finished receiving data")
 
         return loads(data)
