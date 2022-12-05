@@ -22,6 +22,7 @@ class Receiver:
             print(f"Connected by {addr}")
             while True:
                 chunk = conn.recv()
+                print(f"chunk: {chunk}")
                 if not chunk:
                     break
                 data += chunk
