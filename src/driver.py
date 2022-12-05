@@ -35,8 +35,9 @@ if __name__ == "__main__":
                 # pass
 
             recv_sos.value = 0
-
+            print(f"Outside the perpetual while: {NODES}")
             for node_ip, node_port in NODES.items():
+                print("Preparing to send sos")
                 sender = Sender(node_ip, node_port)
                 sender.send(sos=True)
 
