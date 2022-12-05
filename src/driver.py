@@ -25,14 +25,14 @@ if __name__ == "__main__":
     with NodeManager() as manager:
         node = manager.Node(config["DEFAULT"]["IP"], int(config["DEFAULT"]["PORT"]))
 
-        status_update_process = Process(target=update_status, args=(node,))
-        status_update_process.start()
-        # status_update_process.join()
         receiver_process = Process(
             target=recv,
             args=(node,),
         )
         receiver_process.start()
+        status_update_process = Process(target=update_status, args=(node,))
+        status_update_process.start()
+        # status_update_process.join()
 
         while True:
             while node.cpu_stable and node.memory_stable:
