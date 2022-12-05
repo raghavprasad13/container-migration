@@ -107,12 +107,15 @@ class Node:
         while True:
             receiver = Receiver()
             data = receiver.receive()
+            print("data received: {data}")
             if recv_sos.value == 1 and data.sos:
+                print("in data.sos")
                 sender = Sender(data.sender_ip, data.sender_port)
                 my_status_copy = self.my_status.copy()
                 sender.send(data=my_status_copy)
                 continue
             if not data.sos:
+                print("in not data.sos")
                 self.all_node_status[data.sender_ip] = (
                     data.get_cpu_utilization(),
                     data.get_memory_utilization(),
@@ -127,7 +130,7 @@ class Node:
                 self.node_recv_progress = {node_ip: False for node_ip in NODES}
 
             if data.misc_message != None:
-                pass
+                pass  # TODO
 
     def get_target(self) -> str:
         threshold_factor = 1
