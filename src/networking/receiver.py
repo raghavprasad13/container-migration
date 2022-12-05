@@ -21,6 +21,7 @@ class Receiver:
         with conn:
             print(f"Connected by {addr}")
             while True:
+                print("before receiving chunk")
                 chunk = conn.recv()
                 print(f"chunk: {chunk}")
                 if not chunk:
