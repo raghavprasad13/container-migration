@@ -22,11 +22,11 @@ class Receiver:
             print(f"Connected by {addr}")
             while True:
                 print("before receiving chunk")
-                chunk = conn.recv()
+                chunk = conn.recv(1024)
                 print(f"chunk: {chunk}")
-                if not chunk:
-                    break
                 data += chunk
+                if len(chunk) < 1024:
+                    break
             print("finished receiving data")
 
         return loads(data)
