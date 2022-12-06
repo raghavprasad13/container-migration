@@ -25,7 +25,9 @@ class Receiver:
                 chunk = conn.recv(1024)
                 print(f"chunk: {chunk}")
                 data += chunk
+                print(f"chunk_len: {len(chunk)}")
                 if len(chunk) < 1024:
+                    print("about to exit")
                     break
             print("finished receiving data")
 
