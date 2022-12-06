@@ -16,19 +16,16 @@ class Receiver:
         self.sock.listen()
 
     def receive(self) -> InstanceData:
-        data = ""
+        data = None
         conn, addr = self.sock.accept()
         with conn:
             print(f"Connected by {addr}")
-            while True:
-                print("before receiving chunk")
-                chunk = conn.recv(1024)
-                print(f"chunk: {chunk}")
-                data += chunk
-                print(f"chunk_len: {len(chunk)}")
-                if len(chunk) < 1024:
-                    print("about to exit")
-                    break
+            print("before receiving chunk")
+            chunk = conn.recv(1024)
+            print(f"chunk: {chunk}")
+            data = chunk
+            print(f"chunk_len: {len(chunk)}")
             print("finished receiving data")
 
+        print("before returning data")
         return loads(data)
