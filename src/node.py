@@ -70,52 +70,42 @@ class Node:
 
     def update_my_status(self):
         while True:
-            print("in update_my_status")
             self.monitor()
             self.check_stability()
 
     def monitor(self) -> None:
-        print("in monitor")
-        print()
-        # cpu_percent = psutil.cpu_percent(5)
-        # cpu_max_freq = psutil.cpu_freq().max
-        # total_memory, used_memory, _ = map(
-        #     int, os.popen("free -t -m").readlines()[-1].split()[1:]
-        # )
-
-        # instance_data = InstanceData(
-        #     sender_ip_port=(self.ip, self.port),
-        #     cpu_utilization=cpu_percent,
-        #     memory_utilization=(used_memory / total_memory),
-        #     cpu=cpu_max_freq,
-        #     memory=total_memory,
-        # )
-
-        self.my_status = InstanceData(
-            (self.ip, self.port), cpu_utilization=95, memory_utilization=50
+        cpu_percent = psutil.cpu_percent(5)
+        cpu_max_freq = psutil.cpu_freq().max
+        total_memory, used_memory, _ = map(
+            int, os.popen("free -t -m").readlines()[-1].split()[1:]
         )
-        print(f"monitor my_status: {self.my_status}")
+
+        instance_data = InstanceData(
+            sender_ip_port=(self.ip, self.port),
+            cpu_utilization=cpu_percent,
+            memory_utilization=(used_memory / total_memory),
+            cpu=cpu_max_freq,
+            memory=total_memory,
+        )
+
+        self.my_status = instance_data
 
     def check_stability(self):
-        print("in check_stability")
         if self.my_status.cpu_utilization > 90:
             self.cpu_stable = False
         elif self.my_status.memory_utilization > 90:
             self.memory_stable = False
 
-    def recv(self):
+    def recv(self) -> None:
         while True:
             receiver = Receiver()
             data = receiver.receive()
-            print("data received: {data}")
             if recv_sos.value == 1 and data.sos:
-                print("in data.sos")
                 sender = Sender(data.sender_ip, data.sender_port)
                 my_status_copy = self.my_status.copy()
                 sender.send(data=my_status_copy)
                 continue
             if not data.sos:
-                print("in not data.sos")
                 self.all_node_status[data.sender_ip] = (
                     data.get_cpu_utilization(),
                     data.get_memory_utilization(),
@@ -130,7 +120,7 @@ class Node:
                 self.node_recv_progress = {node_ip: False for node_ip in NODES}
 
             if data.misc_message != None:
-                pass  # TODO
+                self.restore(data.misc_message)
 
     def get_target(self) -> str:
         threshold_factor = 1
@@ -196,7 +186,7 @@ class Node:
         checkpoint_name = "checkpoint_" + self.container_name
         ret = subprocess.call(
             shlex.split(
-                "../migrate "
+                "./migrate "
                 + " ".join(
                     [
                         checkpoint_name,
@@ -214,3 +204,21 @@ class Node:
             return (None, False)
 
         return (ret, True)
+
+    def restore(self, checkpoint_name) -> bool:
+        ret = subprocess.call(
+            shlex.split(
+                "./restore "
+                + " ".join(
+                    [
+                        checkpoint_name,
+                        self.checkpoint_dir,
+                    ]
+                )
+            )
+        )
+
+        if ret == 1:
+            return False
+
+        return True

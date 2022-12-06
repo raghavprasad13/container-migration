@@ -1,0 +1,5 @@
+#!/bin/bash
+
+checkpoint_name="$1.tar.gz"
+sudo podman container restore --import $2/$(checkpoint_name) --file-locks && rm -rf $checkpoint_name && return 0
+return 1

@@ -17,15 +17,9 @@ class Receiver:
 
     def receive(self) -> InstanceData:
         data = None
-        conn, addr = self.sock.accept()
+        conn, _ = self.sock.accept()
         with conn:
-            print(f"Connected by {addr}")
-            print("before receiving chunk")
-            chunk = conn.recv(1024)
-            print(f"chunk: {chunk}")
+            chunk = conn.recv(4096)
             data = chunk
-            print(f"chunk_len: {len(chunk)}")
-            print("finished receiving data")
 
-        print("before returning data")
         return loads(data)
